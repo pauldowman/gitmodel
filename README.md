@@ -1,6 +1,8 @@
 GitModel: distributed, versioned NoSQL for Ruby
 ---------------------------------------------------
 
+_http://github.com/pauldowman/gitmodel_
+
 GitModel is an
 [ActiveModel](http://yehudakatz.com/2010/01/10/activemodel-make-any-ruby-object-feel-like-activerecord/)-compliant
 persistence framework for Ruby that uses [Git](http://git-scm.com/) for
@@ -103,7 +105,5 @@ To Do
   * generators
 * Performance
   * Haven't optimized for performance yet. 
-  * Some places where we do blatently stupid things have been marked with
-    PERFORMANCE comments.
 
 
