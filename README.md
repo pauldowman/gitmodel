@@ -131,9 +131,6 @@ To Do
 
 * Querying
   * Use AREL?
-* Transactions
-  * allow blocks to execute within a transaction so multiple changes occur in
-    one Git commit
 * Finish some pending specs
 * Associations
 * API documentation
