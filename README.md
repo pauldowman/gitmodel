@@ -94,14 +94,18 @@ Usage
 Database file structure
 -----------------------
 
+The database is stored in a human-editable format. Simply do "git checkout -f"
+and you'll see directories and files.
+
 Each type of object is stored in a top-level directory (this is analogous to
 ActiveRecord tables), and each object is stored in a subdirectory which is
 named using the object's id (i.e. the primary key). Attributes that are Ruby
 types (strings, numbers, hashes, arrays, whatever) are stored in a file named
-attributes.json and large binary attributes ("blobs") are stored in their own
+attributes.json and binary attributes ("blobs") are stored in their own
 files.
 
-For example, the database for the example above would have a directory structure that looks like this:
+For example, the database for the example above would have a directory
+structure that looks like this:
 
 * db-root 
   * comments 
@@ -121,8 +125,6 @@ For example, the database for the example above would have a directory structure
     * running-with-scissors
       * _attributes.json_
 
-In the above example _attributes.json_ holds the attributes which are
-represented by Ruby types, and binary data "blobs" are stored in files.
 
 To Do
 -----
