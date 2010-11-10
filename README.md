@@ -40,12 +40,55 @@ Why it's awesome
 * Distributed (synced using standard Git push/pull)
 * Transactions
 * Metadata for all database changes (Git commit messages, date & time, etc.)
-* The database is simply files and directores stored in a Git repository.
-  GitModel uses the Git repo directly (rather than Git's checked-out "working
-  copy") but you can do a "git checkout" to view and manipulate the database
-  contents, and then "git commit"
+* In order to be easily human-editable, the database is simply files and
+  directores stored in a Git repository.  GitModel uses the Git repo directly
+  (rather than Git's checked-out "working copy") but you can do a "git
+  checkout" to view and manipulate the database contents, and then "git commit"
 * Test-driven development and excellent test coverage
 * Clean and easy-to-use API
+
+
+Usage
+-----
+
+    GitModel.db_root = '/tmp/gitmodel-data'
+    GitModel.create_db!
+
+    class Post
+      include GitModel::Persistable
+
+      attribute :title
+      attribute :body
+      attribute :categories, :default => []
+      attribute :allow_comments, :default => true
+
+      blob :image
+
+    end
+
+    p1 = Post.new(:id => 'lessons-learned', :title => 'Lessons learned', :body => '...')
+    p1.image = some_binary_data
+    p1.save!
+
+    p2 = Post.new(:id => 'hotdog-eating-contest', :title => 'I won!')
+    p2.body = 'This weekend I won a hotdog eating contest!'
+    p2.image = some_binary_data
+    p2.blobs['hotdogs.jpg'] = some_binary_data
+    p2.blobs['the-aftermath.jpg'] = some_binary_data
+    p2.save!
+
+    p3 = Post.create!(:id => 'running-with-scissors', :title => 'Running with scissors', :body => '...')
+
+    p4 = Post.find('running-with-scissors')
+
+
+    class Comment
+      include GitModel::Persistable
+      attribute :text
+    end
+
+    c1 = Comment.create!(:id => '2010-01-03-328', :text => '...')
+    c2 = Comment.create!(:id => '2010-05-29-742', :text => '...')
 
 
 Database file structure
@@ -58,8 +101,7 @@ types (strings, numbers, hashes, arrays, whatever) are stored in a file named
 attributes.json and large binary attributes ("blobs") are stored in their own
 files.
 
-For example, a database for a blogging app with three Post objects and five
-Comment objects might have a directory structure that looks like this:
+For example, the database for the example above would have a directory structure that looks like this:
 
 * db-root 
   * comments 
@@ -67,24 +109,17 @@ Comment objects might have a directory structure that looks like this:
       * _attributes.json_
     * 2010-05-29-742
       * _attributes.json_
-    * 2010-10-09-934
-      * _attributes.json_
-    * 2010-10-12-132
-      * _attributes.json_
-    * 2010-10-12-665
-      * _attributes.json_
   * posts 
     * hotdog-eating-contest
       * _attributes.json_
-      * _hotdogs.jpg_
+      * _hotdogs.jpg
+      * _image_
       * _the-aftermath.jpg_
     * lessons-learned
       * _attributes.json_
-      * _summary.xls_
+      * _image_
     * running-with-scissors
       * _attributes.json_
-      * _oops.jpg_
-      * _speedy.jpg_
 
 In the above example _attributes.json_ holds the attributes which are
 represented by Ruby types, and binary data "blobs" are stored in files.
