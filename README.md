@@ -116,7 +116,7 @@ structure that looks like this:
   * posts 
     * hotdog-eating-contest
       * _attributes.json_
-      * _hotdogs.jpg
+      * _hotdogs.jpg_
       * _image_
       * _the-aftermath.jpg_
     * lessons-learned
