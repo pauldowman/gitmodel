@@ -48,6 +48,14 @@ Why it's awesome
 * Clean and easy-to-use API
 
 
+Installation
+------------
+
+It's available as a [RubyGem](https://rubygems.org/gems/gitmodel):
+
+    > gem install gitmodel
+
+
 Usage
 -----
 
