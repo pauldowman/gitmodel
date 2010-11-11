@@ -63,7 +63,6 @@ Usage
       attribute :allow_comments, :default => true
 
       blob :image
-
     end
 
     p1 = Post.new(:id => 'lessons-learned', :title => 'Lessons learned', :body => '...')
@@ -80,7 +79,6 @@ Usage
     p3 = Post.create!(:id => 'running-with-scissors', :title => 'Running with scissors', :body => '...')
 
     p4 = Post.find('running-with-scissors')
-
 
     class Comment
       include GitModel::Persistable
