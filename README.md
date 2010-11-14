@@ -131,6 +131,11 @@ structure that looks like this:
     * running-with-scissors
       * _attributes.json_
 
+Contributors
+------------
+
+* [Paul Dowman](http://pauldowman.com/about) ([@pauldowman](http://twitter.com/pauldowman))
+
 
 To Do
 -----
