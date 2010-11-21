@@ -96,6 +96,8 @@ Usage
     c1 = Comment.create!(:id => '2010-01-03-328', :text => '...')
     c2 = Comment.create!(:id => '2010-05-29-742', :text => '...')
 
+An example of a project that uses GitModel is [Balisong](https://github.com/pauldowman/balisong), a blogging app for coders (but it doesn't save objects to the data store. It's read-only so far, assuming that posts will be edited with a text editor).
+
 
 Database file structure
 -----------------------
@@ -140,6 +142,7 @@ Contributors
 To Do
 -----
 
+* Add validations and other feature examples to sample code in README
 * Querying
   * Use AREL?
 * Finish some pending specs
