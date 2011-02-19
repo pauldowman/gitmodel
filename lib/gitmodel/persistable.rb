@@ -97,7 +97,10 @@ module GitModel
       transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
       result = transaction.execute do |t|
         # Write the attributes to the attributes file
-        t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes))
+        # NOTE: using the redundant attributes.to_hash to work around a bug in
+        # active_support 3.0.4, remove when
+        # JSON.generate(HashWithIndifferentAccess.new) no longer fails.
+        t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes.to_hash))
 
         # Write the blob files
         blobs.each do |name, data|
