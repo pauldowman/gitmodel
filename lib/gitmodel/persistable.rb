@@ -190,6 +190,7 @@ module GitModel
       def find_all(conditions = {})
         GitModel.logger.debug "Finding all #{name.pluralize} with conditions: #{conditions.inspect}"
         results = []
+        return results unless GitModel.current_tree
         dirs = (GitModel.current_tree / db_subdir).trees
         dirs.each do |dir|
           if dir.blobs.any?

@@ -327,6 +327,11 @@ describe GitModel::Persistable do
       r.size.should == 3
     end
 
+    it 'returns an empty array if there are no objects of the current type' do
+      r = TestEntity.find_all
+      r.should == []
+    end
+
   end
 
   describe '#exists?' do
