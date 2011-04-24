@@ -84,31 +84,33 @@ module GitModel
     #   :commit_message
     # Returns false if validations failed, otherwise returns the SHA of the commit
     def save(options = {})
-      raise GitModel::NullId unless self.id
+      _run_save_callbacks do 
+        raise GitModel::NullId unless self.id
 
-      if new_record?
-        raise GitModel::RecordExists if self.class.exists?(self.id)
-      else
-        raise GitModel::RecordDoesntExist unless self.class.exists?(self.id)
-      end
-
-      dir = File.join(self.class.db_subdir, self.id)
-
-      transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
-      result = transaction.execute do |t|
-        # Write the attributes to the attributes file
-        # NOTE: using the redundant attributes.to_hash to work around a bug in
-        # active_support 3.0.4, remove when
-        # JSON.generate(HashWithIndifferentAccess.new) no longer fails.
-        t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes.to_hash))
-
-        # Write the blob files
-        blobs.each do |name, data|
-          t.index.add(File.join(dir, name), data)
+        if new_record?
+          raise GitModel::RecordExists if self.class.exists?(self.id)
+        else
+          raise GitModel::RecordDoesntExist unless self.class.exists?(self.id)
         end
-      end
 
-      return result
+        dir = File.join(self.class.db_subdir, self.id)
+
+        transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+        result = transaction.execute do |t|
+          # Write the attributes to the attributes file
+          # NOTE: using the redundant attributes.to_hash to work around a bug in
+          # active_support 3.0.4, remove when
+          # JSON.generate(HashWithIndifferentAccess.new) no longer fails.
+          t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes.to_hash))
+
+          # Write the blob files
+          blobs.each do |name, data|
+            t.index.add(File.join(dir, name), data)
+          end
+        end
+
+        result
+      end
     end
 
     # Same as #save but raises an exception on error
