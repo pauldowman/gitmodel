@@ -133,10 +133,18 @@ structure that looks like this:
     * running-with-scissors
       * _attributes.json_
 
-Contributors
+Contributing
 ------------
 
-* [Paul Dowman](http://pauldowman.com/about) ([@pauldowman](http://twitter.com/pauldowman))
+Do you have an improvement to make? Please submit a pull request on GitHub or a
+patch, including a test written with RSpec.  To run all tests simply run
+`autospec`.
+
+The main author is [Paul Dowman](http://pauldowman.com/about) ([@pauldowman](http://twitter.com/pauldowman)).
+
+Thanks to everyone who has contributed so far:
+
+* [Alex Bartlow](https://github.com/alexbartlow)
 
 
 To Do
