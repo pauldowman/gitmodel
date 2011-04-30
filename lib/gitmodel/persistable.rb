@@ -93,6 +93,8 @@ module GitModel
           raise GitModel::RecordDoesntExist unless self.class.exists?(self.id)
         end
 
+        GitModel.logger.debug "Saving #{self.class.name} with id: #{id}"
+
         dir = File.join(self.class.db_subdir, self.id)
 
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
@@ -141,6 +143,8 @@ module GitModel
         self.id = File.basename(dir)
         @new_record = false
         
+        GitModel.logger.debug "Loading #{self.class.name} with id: #{id}"
+
         # load the attributes
         object = GitModel.current_tree / File.join(dir, 'attributes.json')
         raise GitModel::RecordNotFound if object.nil?
@@ -186,6 +190,7 @@ module GitModel
       end
 
       def exists?(id)
+        GitModel.logger.debug "Checking existence of #{name} with id: #{id}"
         GitModel.repo.commits.any? && !(GitModel.current_tree / File.join(db_subdir, id, 'attributes.json')).nil?
       end
 
@@ -226,6 +231,7 @@ module GitModel
       end
 
       def delete(id, options = {})
+        GitModel.logger.debug "Deleting #{name} with id: #{id}"
         path = File.join(db_subdir, id)
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
@@ -234,6 +240,7 @@ module GitModel
       end
 
       def delete_all(options = {})
+        GitModel.logger.debug "Deleting all #{name.pluralize}"
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
           delete_tree(db_subdir, t.index, options)
