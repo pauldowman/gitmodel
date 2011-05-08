@@ -151,7 +151,9 @@ To Do
 -----
 
 * Add validations and other feature examples to sample code in README
-* Querying
+* Better query support
+  * query with multiple indexes
+  * ability to iterate over result set without eager loading of all instances
   * Use AREL?
 * Finish some pending specs
 * Associations
@@ -161,5 +163,8 @@ To Do
   * generators
 * Performance
   * Haven't optimized for performance yet. 
+  * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
+  * Remove the transaction lock (see transaction.rb line 19)
+    * Indexes will need to be mergeable
 
 
