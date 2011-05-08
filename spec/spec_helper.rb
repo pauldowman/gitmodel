@@ -10,3 +10,6 @@ Rspec.configure do |c|
   c.mock_with :rspec
 end
 
+class TestEntity
+  include GitModel::Persistable
+end

@@ -10,6 +10,7 @@ require 'pp'
 
 $:.unshift(File.dirname(__FILE__))
 require 'gitmodel/errors'
+require 'gitmodel/index'
 require 'gitmodel/persistable'
 require 'gitmodel/transaction'
 

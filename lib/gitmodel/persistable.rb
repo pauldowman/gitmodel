@@ -103,6 +103,7 @@ module GitModel
           # NOTE: using the redundant attributes.to_hash to work around a bug in
           # active_support 3.0.4, remove when
           # JSON.generate(HashWithIndifferentAccess.new) no longer fails.
+          # pretty_generate so that it's more mergeable by Git
           t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes.to_hash))
 
           # Write the blob files

@@ -1,9 +1,5 @@
 require 'spec_helper'
 
-class TestEntity
-  include GitModel::Persistable
-end
-
 class LintTest < ActiveModel::TestCase
   include ActiveModel::Lint::Tests
  
