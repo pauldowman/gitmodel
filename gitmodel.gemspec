@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'ZenTest', '>= 4.4.0'
   s.add_development_dependency 'autotest', '>= 4.4.1'
-  s.add_development_dependency 'autotest-fsevent', '>= 0.2.3' if RUBY_PLATFORM.downcase.include?("darwin") # OS X only
   s.add_development_dependency 'rspec', '>= 2.0.1'
 
   s.files         = `git ls-files`.split("\n")
