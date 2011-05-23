@@ -18,7 +18,6 @@ GEM
     activesupport (3.0.7)
     autotest (4.4.6)
       ZenTest (>= 4.4.1)
-    awesome_print (0.3.2)
     builder (2.1.2)
     diff-lcs (1.1.2)
     grit (2.4.1)
@@ -42,6 +41,5 @@ PLATFORMS
 DEPENDENCIES
   ZenTest (>= 4.4.0)
   autotest (>= 4.4.1)
-  awesome_print
   gitmodel!
   rspec (>= 2.0.1)
