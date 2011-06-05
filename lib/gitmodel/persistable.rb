@@ -13,6 +13,8 @@ module GitModel
 
         define_model_callbacks :initialize, :find, :touch, :only => :after
         define_model_callbacks :save, :create, :update, :destroy
+
+        @@index = GitModel::Index.new(self)
       end
 
       base.extend(ClassMethods)

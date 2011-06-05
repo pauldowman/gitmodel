@@ -2,11 +2,10 @@ module GitModel
   class Index
     def initialize(model_class)
       @model_class = model_class
-      load
-      generate! unless @indexes
     end
 
     def generate!
+      GitModel.logger.debug "Generating indexes for #{@model_class}"
       # TODO it sucks to load every instance here, optimize later
       @indexes = {}
       @model_class.find_all.each do |o|
@@ -19,6 +18,9 @@ module GitModel
     end
 
     def attr_index(attr)
+      unless @indexes
+        self.load
+      end
       @indexes[attr.to_s]
     end
 
@@ -27,6 +29,7 @@ module GitModel
     end
 
     def save(options = {})
+      GitModel.logger.debug "Saving indexes for #{@model_class}"
       transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
       result = transaction.execute do |t|
         # convert to array because JSON hash keys must be strings
@@ -45,13 +48,13 @@ module GitModel
     end
 
     def load
+      GitModel.logger.debug "Loading indexes for #{@model_class}"
+      @indexes = {}
       blob = GitModel.current_tree / filename
       unless blob
-        @indexes = nil
         return
       end
       
-      @indexes = {}
       data = JSON.parse(blob.data)
       data.each do |attr_and_values|
         attr = attr_and_values[0]

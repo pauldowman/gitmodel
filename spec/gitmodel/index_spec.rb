@@ -5,6 +5,7 @@ describe GitModel::Index do
     TestEntity.create!(:id => "foo", :attributes => {:x => 1, :y => 2})
     TestEntity.create!(:id => "bar", :attributes => {:x => 1, :y => 3})
     TestEntity.create!(:id => "baz", :attributes => {:x => 2, :y => 2})
+    #GitModel.logger.level = ::Logger::DEBUG
 
     @i = GitModel::Index.new(TestEntity)
     @i.generate!
@@ -74,7 +75,10 @@ describe GitModel::Index do
 ]
 EOS
     repo = Grit::Repo.new(GitModel.db_root)
-    (repo.commits.first.tree / @i.filename).data.should == json
+    # We should be able to use just repo.commits.first here but
+    # this is a workaround for this bug: 
+    # http://github.com/mojombo/grit/issues/issue/38
+    (repo.commits("master^..master").first.tree / @i.filename).data.should == json
   end
 
   it "can save and load itself from a file" do
@@ -84,13 +88,12 @@ EOS
     @i.attr_index(:x).should == {1 => SortedSet.new(["foo", "bar"]), 2 => SortedSet.new(["baz"])}
   end
 
-  describe "#initialize" do
-    describe "with no index file created" do
-      it "generates itself" do
-        i = GitModel::Index.new(TestEntity)
-        i.should_receive("generate!")
-        i.send(:initialize, TestEntity)
-      end
+  describe "#attr_index" do
+    it "loads itself" do
+      i = GitModel::Index.new(TestEntity)
+      i.should_receive(:load)
+      nil.should_receive('[]').once # TODO set allow_message_expectations_on_nil to fix warning
+      i.attr_index(:foo)
     end
 
     describe "with an index file already created" do
@@ -98,9 +101,8 @@ EOS
 
       it "loads itself from file" do
         i = GitModel::Index.new(TestEntity)
-        i.should_receive("load")
-        i.should_not_receive("generate!")
-        i.send(:initialize, TestEntity)
+        i.should_not_receive(:generate!)
+        i.attr_index(:foo)
       end
     end
   end
