@@ -242,7 +242,7 @@ describe GitModel::Persistable do
 
   end
 
-  describe '#find' do
+  describe '.find' do
 
     #it 'can load an object from an empty subdir of db_root' do
     #  id = "foo"
@@ -312,7 +312,7 @@ describe GitModel::Persistable do
 
   end
 
-  describe '#find_all' do
+  describe '.find_all' do
 
     it 'returns an array of all objects' do
       TestEntity.create!(:id => 'one')
@@ -330,7 +330,7 @@ describe GitModel::Persistable do
 
   end
 
-  describe '#exists?' do
+  describe '.exists?' do
 
     it 'returns true if the record exists' do
       TestEntity.create!(:id => 'one')
@@ -341,6 +341,14 @@ describe GitModel::Persistable do
       TestEntity.exists?('missing').should be_false
     end
 
+  end
+
+  describe ".index!" do
+    it "generates and saves the index" do
+      TestEntity.index.should_receive(:generate!)
+      TestEntity.index.should_receive(:save)
+      TestEntity.index!
+    end
   end
 
   describe '#attributes' do

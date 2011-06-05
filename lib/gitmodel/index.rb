@@ -21,7 +21,7 @@ module GitModel
       unless @indexes
         self.load
       end
-      @indexes[attr.to_s]
+      @indexes[attr.to_s] if @indexes # redundant but allows stubbing self.load in tests
     end
 
     def filename
@@ -41,8 +41,10 @@ module GitModel
           end
           data << [attr,values_and_ids]
         end
-        # pretty_generate so that it's more mergeable by Git
-        data = JSON.pretty_generate(data)
+        # TODO use pretty_generate so that it's more mergeable by Git
+        # but it's causing a git error: 'corrupt loose object'
+        #data = JSON.pretty_generate(data)
+        data = JSON.generate(data)
         t.index.add(filename, data)
       end
     end

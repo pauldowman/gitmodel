@@ -74,4 +74,10 @@ module GitModel
     c ? c.tree : nil
   end
 
+  def self.index!
+    dirs = (GitModel.current_tree).trees
+    dirs.each do |dir|
+      dir.name.classify.constantize.index!
+    end
+  end
 end

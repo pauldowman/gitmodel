@@ -13,3 +13,8 @@ end
 class TestEntity
   include GitModel::Persistable
 end
+class TestEntity2
+  include GitModel::Persistable
+end
+
+#GitModel.logger.level = ::Logger::DEBUG

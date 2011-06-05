@@ -2,8 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe GitModel do
 
-  describe "#last_commit" do
-
+  describe ".last_commit" do
     it "returns nil if there are no commits" do
       GitModel.last_commit.should == nil
     end
@@ -17,11 +16,9 @@ describe GitModel do
             
       GitModel.last_commit.to_s.should == sha
     end
-
   end
 
-  describe "#current_tree" do
-
+  describe ".current_tree" do
     it "returns nil if there are no commits" do
       GitModel.current_tree.should == nil
     end
@@ -32,7 +29,19 @@ describe GitModel do
       GitModel.should_receive(:last_commit).with('master').and_return(last_commit)
       GitModel.current_tree('master')
     end
+  end
 
+  describe ".index" do
+    before(:each) do
+      TestEntity.create!(:id => "foo")
+      TestEntity2.create!(:id => "bar")
+    end
+
+    it "calls index! on each Persistable model class" do
+      TestEntity.should_receive(:index!)
+      TestEntity2.should_receive(:index!)
+      GitModel.index!
+    end
   end
 
 end

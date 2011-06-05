@@ -14,7 +14,8 @@ module GitModel
         define_model_callbacks :initialize, :find, :touch, :only => :after
         define_model_callbacks :save, :create, :update, :destroy
 
-        @@index = GitModel::Index.new(self)
+        cattr_accessor :index, true
+        self.index = GitModel::Index.new(self)
       end
 
       base.extend(ClassMethods)
@@ -248,6 +249,11 @@ module GitModel
         result = transaction.execute do |t|
           delete_tree(db_subdir, t.index, options)
         end
+      end
+
+      def index!
+        index.generate!
+        index.save
       end
 
 

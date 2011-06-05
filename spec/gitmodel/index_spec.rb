@@ -5,7 +5,6 @@ describe GitModel::Index do
     TestEntity.create!(:id => "foo", :attributes => {:x => 1, :y => 2})
     TestEntity.create!(:id => "bar", :attributes => {:x => 1, :y => 3})
     TestEntity.create!(:id => "baz", :attributes => {:x => 2, :y => 2})
-    #GitModel.logger.level = ::Logger::DEBUG
 
     @i = GitModel::Index.new(TestEntity)
     @i.generate!
@@ -34,46 +33,7 @@ describe GitModel::Index do
 
   it "can save itself to a JSON file" do
     @i.save
-    json = <<-EOS.strip
-[
-  [
-    "x",
-    [
-      [
-        1,
-        [
-          "bar",
-          "foo"
-        ]
-      ],
-      [
-        2,
-        [
-          "baz"
-        ]
-      ]
-    ]
-  ],
-  [
-    "y",
-    [
-      [
-        3,
-        [
-          "bar"
-        ]
-      ],
-      [
-        2,
-        [
-          "baz",
-          "foo"
-        ]
-      ]
-    ]
-  ]
-]
-EOS
+    json = %{[["x",[[1,["bar","foo"]],[2,["baz"]]]],["y",[[3,["bar"]],[2,["baz","foo"]]]]]}
     repo = Grit::Repo.new(GitModel.db_root)
     # We should be able to use just repo.commits.first here but
     # this is a workaround for this bug: 
@@ -92,7 +52,6 @@ EOS
     it "loads itself" do
       i = GitModel::Index.new(TestEntity)
       i.should_receive(:load)
-      nil.should_receive('[]').once # TODO set allow_message_expectations_on_nil to fix warning
       i.attr_index(:foo)
     end
 
