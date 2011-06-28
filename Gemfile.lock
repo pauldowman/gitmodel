@@ -11,11 +11,11 @@ GEM
   remote: http://rubygems.org/
   specs:
     ZenTest (4.5.0)
-    activemodel (3.0.7)
-      activesupport (= 3.0.7)
+    activemodel (3.0.9)
+      activesupport (= 3.0.9)
       builder (~> 2.1.2)
       i18n (~> 0.5.0)
-    activesupport (3.0.7)
+    activesupport (3.0.9)
     autotest (4.4.6)
       ZenTest (>= 4.4.1)
     builder (2.1.2)
@@ -26,14 +26,14 @@ GEM
     i18n (0.5.0)
     lockfile (1.4.3)
     mime-types (1.16)
-    rspec (2.5.0)
-      rspec-core (~> 2.5.0)
-      rspec-expectations (~> 2.5.0)
-      rspec-mocks (~> 2.5.0)
-    rspec-core (2.5.2)
-    rspec-expectations (2.5.0)
+    rspec (2.6.0)
+      rspec-core (~> 2.6.0)
+      rspec-expectations (~> 2.6.0)
+      rspec-mocks (~> 2.6.0)
+    rspec-core (2.6.4)
+    rspec-expectations (2.6.0)
       diff-lcs (~> 1.1.2)
-    rspec-mocks (2.5.0)
+    rspec-mocks (2.6.0)
 
 PLATFORMS
   ruby

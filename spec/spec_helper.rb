@@ -6,7 +6,7 @@ require 'gitmodel'
 
 Dir[File.join(File.dirname(__FILE__), "support/**/*.rb")].each {|f| require f}
 
-Rspec.configure do |c|
+RSpec.configure do |c|
   c.mock_with :rspec
 end
 
