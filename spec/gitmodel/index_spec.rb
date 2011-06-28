@@ -33,7 +33,46 @@ describe GitModel::Index do
 
   it "can save itself to a JSON file" do
     @i.save
-    json = %{[["x",[[1,["bar","foo"]],[2,["baz"]]]],["y",[[3,["bar"]],[2,["baz","foo"]]]]]}
+    json = <<-END.strip
+[
+  [
+    "x",
+    [
+      [
+        1,
+        [
+          "bar",
+          "foo"
+        ]
+      ],
+      [
+        2,
+        [
+          "baz"
+        ]
+      ]
+    ]
+  ],
+  [
+    "y",
+    [
+      [
+        3,
+        [
+          "bar"
+        ]
+      ],
+      [
+        2,
+        [
+          "baz",
+          "foo"
+        ]
+      ]
+    ]
+  ]
+]
+END
     repo = Grit::Repo.new(GitModel.db_root)
     # We should be able to use just repo.commits.first here but
     # this is a workaround for this bug: 

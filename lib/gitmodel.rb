@@ -4,7 +4,7 @@ require 'bundler/setup'
 require 'active_model'
 require 'active_support/all' # TODO we don't really want all here, clean this up
 require 'grit'
-require 'json'
+require 'yajl'
 require 'lockfile'
 require 'pp'
 

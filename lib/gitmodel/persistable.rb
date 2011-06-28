@@ -103,11 +103,7 @@ module GitModel
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
           # Write the attributes to the attributes file
-          # NOTE: using the redundant attributes.to_hash to work around a bug in
-          # active_support 3.0.4, remove when
-          # JSON.generate(HashWithIndifferentAccess.new) no longer fails.
-          # pretty_generate so that it's more mergeable by Git
-          t.index.add(File.join(dir, 'attributes.json'), JSON.pretty_generate(attributes.to_hash))
+          t.index.add(File.join(dir, 'attributes.json'), Yajl::Encoder.encode(attributes, nil, :pretty => true))
 
           # Write the blob files
           blobs.each do |name, data|
@@ -153,7 +149,7 @@ module GitModel
         object = GitModel.current_tree / File.join(dir, 'attributes.json')
         raise GitModel::RecordNotFound if object.nil?
 
-        self.attributes = JSON.parse(object.data, :max_nesting => false)
+        self.attributes = Yajl::Parser.parse(object.data)
 
         # load all other non-hidden files in the dir as blobs
         blobs = (GitModel.current_tree / dir).blobs.reject{|b| b.name[0] == '.' || b.name == 'attributes.json'}

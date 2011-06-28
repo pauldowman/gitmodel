@@ -41,10 +41,7 @@ module GitModel
           end
           data << [attr,values_and_ids]
         end
-        # TODO use pretty_generate so that it's more mergeable by Git
-        # but it's causing a git error: 'corrupt loose object'
-        #data = JSON.pretty_generate(data)
-        data = JSON.generate(data)
+        data = Yajl::Encoder.encode(data, nil, :pretty => true)
         t.index.add(filename, data)
       end
     end
@@ -57,7 +54,7 @@ module GitModel
         return
       end
       
-      data = JSON.parse(blob.data)
+      data = Yajl::Parser.parse(blob.data)
       data.each do |attr_and_values|
         attr = attr_and_values[0]
         values = {}

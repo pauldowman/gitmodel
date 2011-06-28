@@ -47,7 +47,7 @@ describe GitModel::Persistable do
 
       repo = Grit::Repo.new(GitModel.db_root)
       attrs = (repo.commits.first.tree / File.join(TestEntity.db_subdir, id, 'attributes.json')).data
-      r = JSON.parse(attrs)
+      r = Yajl::Parser.parse(attrs)
       r.size.should == 2
       r['one'].should == 1
       r['two'].should == 2
