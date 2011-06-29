@@ -147,7 +147,7 @@ Thanks to everyone who has contributed so far:
 * [Alex Bartlow](https://github.com/alexbartlow)
 
 
-To Do
+To do
 -----
 
 * Add validations and other feature examples to sample code in README
@@ -167,4 +167,8 @@ To Do
   * Remove the transaction lock (see transaction.rb line 19)
     * Indexes will need to be mergeable
 
+Known issues
+------------
+
+* Grit 2.4.1 has [an issue with non-ASCII characters](https://github.com/mojombo/grit/commit/696761d8047ffd038dc2828e6a1998e3f7c3b419)
 
