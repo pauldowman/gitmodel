@@ -100,7 +100,7 @@ END
       it "loads itself from file" do
         i = GitModel::Index.new(TestEntity)
         i.should_not_receive(:generate!)
-        i.attr_index(:foo)
+        i.attr_index(:x)
       end
     end
   end

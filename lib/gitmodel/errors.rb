@@ -8,8 +8,8 @@ module GitModel
   class RecordNotFound < GitModelError
   end
   
-  # Raised by GitModel::Persistable.save! and GitModel::Persistable.create! methods when record cannot be
-  # saved because record is invalid.
+  # Raised by GitModel::Persistable.save! and GitModel::Persistable.create!
+  # methods when record cannot be saved because record is invalid.
   class RecordNotSaved < GitModelError
   end
   
@@ -20,6 +20,14 @@ module GitModel
   end
    
   class NullId < GitModelError
+  end
+
+  # Raised by GitModel::Persistable.find_all when query conditions are given
+  # but there is no index generated
+  class IndexRequired < GitModelError
+  end
+
+  class AttributeNotIndexed < GitModelError
   end
 
 end

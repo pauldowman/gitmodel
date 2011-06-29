@@ -219,6 +219,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'ape')
 
       TestEntity.delete_all
+      TestEntity.index!
       TestEntity.find_all.should be_empty
     end
 
@@ -313,19 +314,152 @@ describe GitModel::Persistable do
   end
 
   describe '.find_all' do
+    describe 'with no parameters' do
+      it 'returns an array of all objects' do
+        TestEntity.create!(:id => 'one')
+        TestEntity.create!(:id => 'two')
+        TestEntity.create!(:id => 'three')
 
-    it 'returns an array of all objects' do
-      TestEntity.create!(:id => 'one')
-      TestEntity.create!(:id => 'two')
-      TestEntity.create!(:id => 'three')
+        r = TestEntity.find_all
+        r.size.should == 3
+      end
 
-      r = TestEntity.find_all
-      r.size.should == 3
+      it 'returns an empty array if there are no objects of the current type' do
+        r = TestEntity.find_all
+        r.should == []
+      end
     end
 
-    it 'returns an empty array if there are no objects of the current type' do
-      r = TestEntity.find_all
-      r.should == []
+    describe 'with conditions but no index' do
+      it 'raises an exception' do
+        TestEntity.create!(:id => 'one')
+        lambda {TestEntity.find_all(:a => "b")}.should raise_error(GitModel::IndexRequired)
+      end
+    end
+
+    describe 'with one condition' do
+      describe 'with a literal value' do
+        it 'returns an array of all objects that match' do
+          TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+          TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
+          TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+          TestEntity.index!
+
+          r = TestEntity.find_all(:a => 1)
+          r.size.should == 2
+          r.first.id.should == 'one'
+          r.second.id.should == 'three'
+        end
+      end
+
+      describe 'with a lambda as the value' do
+        it 'returns an array of all objects that match' do
+          TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+          TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
+          TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+          TestEntity.index!
+
+          r = TestEntity.find_all(:b => lambda{|b| b > 1}, :order => :asc)
+          r.size.should == 2
+          r.first.id.should == 'three'
+          r.second.id.should == 'two'
+        end
+      end
+    end
+
+    describe 'with multiple conditions' do
+      describe 'with a literal value' do
+        it 'returns an array of all objects that match both (i.e. AND)' do
+          TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 2})
+          TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
+          TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 1})
+          TestEntity.index!
+
+          r = TestEntity.find_all(:a => 1, :b => 2, :order => :asc)
+          r.size.should == 2
+          r.first.id.should == 'one'
+          r.second.id.should == 'two'
+        end
+      end
+
+      describe 'with a lambda as the value' do
+        it 'returns an array of all objects that match both (i.e. AND)'  do
+          TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 3})
+          TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
+          TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 1})
+          TestEntity.create!(:id => 'four', :attributes => {:a => 3, :b => 3})
+          TestEntity.index!
+
+          r = TestEntity.find_all(:a => lambda{|a| a > 1}, :b => lambda{|b| b > 2}, :order => :asc)
+          r.size.should == 1
+          r.first.id.should == 'four'
+        end
+
+      end
+    end
+
+    describe 'with the id attribute in the conditions' do
+      describe 'with a literal value' do
+        it 'returns an array that includes the object with that id' do
+          TestEntity.create!(:id => 'one')
+          TestEntity.create!(:id => 'two')
+          TestEntity.create!(:id => 'three')
+
+          r = TestEntity.find_all(:id => 'one')
+          r.size.should == 1
+          r.first.id.should == 'one'
+        end
+      end
+
+      describe 'with a lambda as the value' do
+        it 'returns an array that includes the object with that id' do
+          TestEntity.create!(:id => 'one')
+          TestEntity.create!(:id => 'two')
+          TestEntity.create!(:id => 'three')
+
+          r = TestEntity.find_all(:id => lambda{|id| id =~ /o/})
+          r.size.should == 2
+          r.first.id.should == 'one'
+          r.second.id.should == 'two'
+        end
+
+      end
+    end
+
+    it 'can return results in ascending order' do
+      TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+      TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
+      TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+      TestEntity.index!
+
+      r = TestEntity.find_all(:a => 1, :order => :asc)
+      r.size.should == 2
+      r.first.id.should == 'one'
+      r.second.id.should == 'three'
+    end
+
+    it 'can return results in descending order' do
+      TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+      TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
+      TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+      TestEntity.index!
+
+      r = TestEntity.find_all(:a => 1, :order => :desc)
+      r.size.should == 2
+      r.first.id.should == 'three'
+      r.second.id.should == 'one'
+    end
+
+    it 'can limit the number of results returned' do
+      TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+      TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
+      TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+      TestEntity.index!
+
+      r = TestEntity.find_all(:a => 1, :limit => 2)
+      r.size.should == 2
+      r.first.id.should == 'one'
+      r.second.id.should == 'three'
     end
 
   end

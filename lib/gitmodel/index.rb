@@ -18,18 +18,24 @@ module GitModel
     end
 
     def attr_index(attr)
-      unless @indexes
-        self.load
-      end
-      return @indexes ? @indexes[attr.to_s] : nil
+      self.load unless @indexes
+      return nil unless @indexes # this is just so that we can stub self.load in tests
+
+      ret = @indexes[attr.to_s] 
+      raise GitModel::AttributeNotIndexed.new(attr.to_s) unless ret
+      return ret
     end
 
     def filename
       File.join(@model_class.db_subdir, '_indexes.json')
     end
 
+    def generated?
+      (GitModel.current_tree / filename) ? true : false
+    end
+
     def save(options = {})
-      GitModel.logger.debug "Saving indexes for #{@model_class}"
+      GitModel.logger.debug "Saving indexes for #{@model_class}..."
       transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
       result = transaction.execute do |t|
         # convert to array because JSON hash keys must be strings
@@ -47,12 +53,14 @@ module GitModel
     end
 
     def load
-      GitModel.logger.debug "Loading indexes for #{@model_class}"
-      @indexes = {}
-      blob = GitModel.current_tree / filename
-      unless blob
+      unless generated?
+        GitModel.logger.debug "No index generated for #{@model_class}, not loading."
         return
       end
+
+      GitModel.logger.debug "Loading indexes for #{@model_class}..."
+      @indexes = {}
+      blob = GitModel.current_tree / filename
       
       data = Yajl::Parser.parse(blob.data)
       data.each do |attr_and_values|
