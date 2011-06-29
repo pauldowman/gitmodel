@@ -351,6 +351,15 @@ describe GitModel::Persistable do
     end
   end
 
+  describe '.all_values_for_attr' do
+    it 'returns a list of all values that exist for a given attribute' do
+      o = TestEntity.create!(:id => 'first', :attributes => {"a" => 1, "b" => 2})
+      o = TestEntity.create!(:id => 'second', :attributes => {"a" => 3, "b" => 4})
+      TestEntity.index!
+      TestEntity.all_values_for_attr("a").should == [1, 3]
+    end
+  end
+
   describe '#attributes' do
     it 'accepts symbols or strings interchangeably as strings' do
       o = TestEntity.new(:id => 'lol', :attributes => {"one" => 1, :two => 2})

@@ -210,6 +210,11 @@ module GitModel
         return results
       end
 
+      def all_values_for_attr(attr)
+        attr_index = index.attr_index(attr.to_s)
+        values = attr_index ? attr_index.keys : []
+      end
+
       def create(args)
         if args.is_a?(Array)
           args.map{|arg| create(arg)}

@@ -21,7 +21,7 @@ module GitModel
       unless @indexes
         self.load
       end
-      @indexes[attr.to_s] if @indexes # redundant but allows stubbing self.load in tests
+      return @indexes ? @indexes[attr.to_s] : nil
     end
 
     def filename
