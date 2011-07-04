@@ -116,22 +116,22 @@ For example, the database for the example above would have a directory
 structure that looks like this:
 
 * db-root 
-  * comments 
-    * 2010-01-03-328
-      * _attributes.json_
-    * 2010-05-29-742
-      * _attributes.json_
-  * posts 
-    * hotdog-eating-contest
-      * _attributes.json_
-      * _hotdogs.jpg_
-      * _image_
-      * _the-aftermath.jpg_
-    * lessons-learned
-      * _attributes.json_
-      * _image_
-    * running-with-scissors
-      * _attributes.json_
+    * comments 
+        * 2010-01-03-328
+            * _attributes.json_
+        * 2010-05-29-742
+            * _attributes.json_
+    * posts 
+        * hotdog-eating-contest
+            * _attributes.json_
+            * _hotdogs.jpg_
+            * _image_
+            * _the-aftermath.jpg_
+        * lessons-learned
+            * _attributes.json_
+            * _image_
+        * running-with-scissors
+            * _attributes.json_
 
 Contributing
 ------------
@@ -151,23 +151,23 @@ To do
 -----
 
 * Add validations and other feature examples to sample code in README
-* Better query support
-  * query with multiple indexes
-  * ability to iterate over result set without eager loading of all instances
-  * Use AREL?
 * Finish some pending specs
-* Associations
 * API documentation
 * Rails integration
-  * rake tasks
-  * generators
+    * Generators
+    * Rake tasks
 * Performance
-  * Haven't optimized for performance yet. 
-  * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
-  * Remove the transaction lock (see transaction.rb line 19)
-    * Indexes will need to be mergeable
+    * Haven't optimized for performance yet. 
+    * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
+    * Remove the transaction lock (see transaction.rb line 19)
+    * Ability to iterate over result set without eager loading of all instances
+* Persistable.find/find_all/etc could be based on staged files so that queries reflect uncommitted changes
+* Better query support
+    * Associations
+    * Use AREL?
 
-Known issues
+
+Bugs
 ------------
 
 * Grit 2.4.1 has [an issue with non-ASCII characters](https://github.com/mojombo/grit/commit/696761d8047ffd038dc2828e6a1998e3f7c3b419)
