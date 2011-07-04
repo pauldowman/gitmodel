@@ -454,15 +454,27 @@ describe GitModel::Persistable do
       r.second.id.should == 'one'
     end
 
-    it 'can limit the number of results returned' do
+    it 'can limit the number of results returned with ascending order' do
       TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
       TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
       TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
       TestEntity.index!
 
-      r = TestEntity.find_all(:a => 1, :limit => 2)
+      r = TestEntity.find_all(:a => 1, :order => :asc, :limit => 2)
       r.size.should == 2
       r.first.id.should == 'one'
+      r.second.id.should == 'three'
+    end
+
+    it 'can limit the number of results returned with descending order' do
+      TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
+      TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
+      TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
+      TestEntity.index!
+
+      r = TestEntity.find_all(:a => 1, :order => :desc, :limit => 2)
+      r.size.should == 2
+      r.first.id.should == 'two'
       r.second.id.should == 'three'
     end
 

@@ -255,15 +255,16 @@ module GitModel
             results = results[0, limit]
           end
         else
-          if limit
-            matching_ids = matching_ids[0, limit]
-          end
           if order == :asc
             matching_ids = matching_ids.sort{|a,b| a <=> b}
           elsif order == :desc
             matching_ids = matching_ids.sort{|b,a| a <=> b}
           else
             raise GitModel::InvalidParams("invalid order: '#{order}'")
+          end
+          if limit
+
+            matching_ids = matching_ids[0, limit]
           end
           results = matching_ids.map{|k| find(k)}
         end
