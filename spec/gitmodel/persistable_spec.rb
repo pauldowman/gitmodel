@@ -79,6 +79,10 @@ describe GitModel::Persistable do
     it 'returns the SHA of the commit if the save was successful'
 
     it 'deletes blobs that have been removed'
+
+    it 'updates the index' do
+      # TODO
+    end
   end
 
   describe '#save!' do
