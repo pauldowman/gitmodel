@@ -49,7 +49,7 @@ _It is not yet production ready but I'm working on it. Please feel free to
 contribute tests and/or code to help!_
 
 I will attempt to follow [Semantic Versioning](http://semver.org/) so 1.0.0
-will be considered the first stable release, until the the API may change at
+will be considered the first stable release, until then the API may change at
 any time.
 
 See the "To do" section below for details, but the main thing that needs
