@@ -4,7 +4,7 @@ module GitModel
       @model_class = model_class
     end
 
-    def generate!
+    def generate!(branch)
       GitModel.logger.debug "Generating indexes for #{@model_class}"
       # TODO it sucks to load every instance here, optimize later
       @indexes = {}
@@ -30,13 +30,14 @@ module GitModel
       File.join(@model_class.db_subdir, '_indexes.json')
     end
 
-    def generated?
-      (GitModel.current_tree / filename) ? true : false
+    def generated?(branch = GitModel.default_branch)
+      (GitModel.current_tree(branch) / filename) ? true : false
     end
 
     def save(options = {})
       GitModel.logger.debug "Saving indexes for #{@model_class}..."
       transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+      branch = transaction.branch || options.delete(:branch) || GitModel.default_branch
       result = transaction.execute do |t|
         # convert to array because JSON hash keys must be strings
         data = []
@@ -52,15 +53,15 @@ module GitModel
       end
     end
 
-    def load
-      unless generated?
-        GitModel.logger.debug "No index generated for #{@model_class}, not loading."
+    def load(branch = GitModel.default_branch)
+      unless generated?(branch)
+        GitModel.logger.debug "No index generated for #{@model_class}, on branch #{branch}, not loading."
         return
       end
 
       GitModel.logger.debug "Loading indexes for #{@model_class}..."
       @indexes = {}
-      blob = GitModel.current_tree / filename
+      blob = GitModel.current_tree(branch) / filename
       
       data = Yajl::Parser.parse(blob.data)
       data.each do |attr_and_values|

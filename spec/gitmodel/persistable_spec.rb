@@ -202,15 +202,16 @@ describe GitModel::Persistable do
     it 'also deletes blobs associated with the given object' do
       id = 'Lemuridae'
       TestEntity.create!(:id => id, :blobs => {:crowned => "Eulemur coronatus", :brown => "Eulemur fulvus"})
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'crowned')).data.should_not be_nil
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'brown')).data.should_not be_nil
+      b = GitModel.default_branch
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'crowned')).data.should_not be_nil
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'brown')).data.should_not be_nil
       TestEntity.delete(id)
 
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'attributes.json')).should be_nil
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'attributes.json')).should be_nil
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'attributes.json')).should be_nil
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'attributes.json')).should be_nil
 
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'crowned')).should be_nil
-      (GitModel.current_tree / File.join(TestEntity.db_subdir, id, 'brown')).should be_nil
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'crowned')).should be_nil
+      (GitModel.current_tree(b) / File.join(TestEntity.db_subdir, id, 'brown')).should be_nil
     end
 
 
@@ -223,7 +224,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'ape')
 
       TestEntity.delete_all
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
       TestEntity.find_all.should be_empty
     end
 
@@ -347,7 +348,7 @@ describe GitModel::Persistable do
           TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
           TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
           TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-          TestEntity.index!
+          TestEntity.index!(GitModel.default_branch)
 
           r = TestEntity.find_all(:a => 1)
           r.size.should == 2
@@ -361,7 +362,7 @@ describe GitModel::Persistable do
           TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
           TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
           TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-          TestEntity.index!
+          TestEntity.index!(GitModel.default_branch)
 
           r = TestEntity.find_all(:b => lambda{|b| b > 1}, :order => :asc)
           r.size.should == 2
@@ -377,7 +378,7 @@ describe GitModel::Persistable do
           TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 2})
           TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
           TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 1})
-          TestEntity.index!
+          TestEntity.index!(GitModel.default_branch)
 
           r = TestEntity.find_all(:a => 1, :b => 2, :order => :asc)
           r.size.should == 2
@@ -392,7 +393,7 @@ describe GitModel::Persistable do
           TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
           TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 1})
           TestEntity.create!(:id => 'four', :attributes => {:a => 3, :b => 3})
-          TestEntity.index!
+          TestEntity.index!(GitModel.default_branch)
 
           r = TestEntity.find_all(:a => lambda{|a| a > 1}, :b => lambda{|b| b > 2}, :order => :asc)
           r.size.should == 1
@@ -434,7 +435,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
       TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
       TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
 
       r = TestEntity.find_all(:a => 1, :order => :asc)
       r.size.should == 2
@@ -446,7 +447,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
       TestEntity.create!(:id => 'two', :attributes => {:a => 2, :b => 2})
       TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
 
       r = TestEntity.find_all(:a => 1, :order => :desc)
       r.size.should == 2
@@ -458,7 +459,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
       TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
       TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
 
       r = TestEntity.find_all(:a => 1, :order => :asc, :limit => 2)
       r.size.should == 2
@@ -470,7 +471,7 @@ describe GitModel::Persistable do
       TestEntity.create!(:id => 'one', :attributes => {:a => 1, :b => 1})
       TestEntity.create!(:id => 'two', :attributes => {:a => 1, :b => 2})
       TestEntity.create!(:id => 'three', :attributes => {:a => 1, :b => 3})
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
 
       r = TestEntity.find_all(:a => 1, :order => :desc, :limit => 2)
       r.size.should == 2
@@ -497,7 +498,7 @@ describe GitModel::Persistable do
     it "generates and saves the index" do
       TestEntity.index.should_receive(:generate!)
       TestEntity.index.should_receive(:save)
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
     end
   end
 
@@ -505,7 +506,7 @@ describe GitModel::Persistable do
     it 'returns a list of all values that exist for a given attribute' do
       o = TestEntity.create!(:id => 'first', :attributes => {"a" => 1, "b" => 2})
       o = TestEntity.create!(:id => 'second', :attributes => {"a" => 3, "b" => 4})
-      TestEntity.index!
+      TestEntity.index!(GitModel.default_branch)
       TestEntity.all_values_for_attr("a").should == [1, 3]
     end
   end

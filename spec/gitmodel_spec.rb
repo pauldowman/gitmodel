@@ -4,7 +4,7 @@ describe GitModel do
 
   describe ".last_commit" do
     it "returns nil if there are no commits" do
-      GitModel.last_commit.should == nil
+      GitModel.last_commit(GitModel.default_branch).should == nil
     end
 
     it "returns the most recent commit on a branch" do
@@ -14,13 +14,13 @@ describe GitModel do
       index.add "foo", "foo"
       sha = index.commit nil, nil, nil, nil, 'master'
             
-      GitModel.last_commit.to_s.should == sha
+      GitModel.last_commit(GitModel.default_branch).to_s.should == sha
     end
   end
 
   describe ".current_tree" do
     it "returns nil if there are no commits" do
-      GitModel.current_tree.should == nil
+      GitModel.current_tree(GitModel.default_branch).should == nil
     end
 
     it "returns the tree for the most recent commit on a branch" do
@@ -40,7 +40,7 @@ describe GitModel do
     it "calls index! on each Persistable model class" do
       TestEntity.should_receive(:index!)
       TestEntity2.should_receive(:index!)
-      GitModel.index!
+      GitModel.index!(GitModel.default_branch)
     end
   end
 

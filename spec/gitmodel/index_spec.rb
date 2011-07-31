@@ -7,7 +7,7 @@ describe GitModel::Index do
     TestEntity.create!(:id => "baz", :attributes => {:x => 2, :y => 2})
 
     @i = GitModel::Index.new(TestEntity)
-    @i.generate!
+    @i.generate!(GitModel.default_branch)
   end
 
   it "has a hash for each attribute of the model" do
@@ -23,7 +23,7 @@ describe GitModel::Index do
   it "can regenerate itself" do
     @i.attr_index(:x).clear
     @i.attr_index(:x).should be_empty
-    @i.generate!
+    @i.generate!(GitModel.default_branch)
     @i.attr_index(:x).should == {1 => SortedSet.new(["foo", "bar"]), 2 => SortedSet.new(["baz"])}
   end
 

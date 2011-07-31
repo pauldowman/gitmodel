@@ -132,13 +132,13 @@ module GitModel
 
     private
 
-    def load(dir)
+    def load(dir, branch)
       _run_find_callbacks do
         # remove dangerous ".."
         # todo find a better way to ensure path is safe
         dir.gsub!(/\.\./, '')
 
-        raise GitModel::RecordNotFound if GitModel.current_tree.nil?
+        raise GitModel::RecordNotFound if GitModel.current_tree(branch).nil?
 
         self.id = File.basename(dir)
         @new_record = false
@@ -146,13 +146,13 @@ module GitModel
         GitModel.logger.debug "Loading #{self.class.name} with id: #{id}"
 
         # load the attributes
-        object = GitModel.current_tree / File.join(dir, 'attributes.json')
+        object = GitModel.current_tree(branch) / File.join(dir, 'attributes.json')
         raise GitModel::RecordNotFound if object.nil?
 
         self.attributes = Yajl::Parser.parse(object.data)
 
         # load all other non-hidden files in the dir as blobs
-        blobs = (GitModel.current_tree / dir).blobs.reject{|b| b.name[0] == '.' || b.name == 'attributes.json'}
+        blobs = (GitModel.current_tree(branch) / dir).blobs.reject{|b| b.name[0] == '.' || b.name == 'attributes.json'}
         blobs.each do |b|
           self.blobs[b.name] = b.data
         end
@@ -181,23 +181,24 @@ module GitModel
         EOF
       end
 
-      def find(id)
+      def find(id, branch = GitModel.default_branch)
         GitModel.logger.debug "Finding #{name} with id: #{id}"
         o = new
         dir = File.join(db_subdir, id)
-        o.send :load, dir
+        o.send :load, dir, branch
         return o
       end
 
-      def exists?(id)
+      def exists?(id, branch = GitModel.default_branch)
         GitModel.logger.debug "Checking existence of #{name} with id: #{id}"
-        GitModel.repo.commits.any? && !(GitModel.current_tree / File.join(db_subdir, id, 'attributes.json')).nil?
+        GitModel.repo.commits.any? && !(GitModel.current_tree(branch) / File.join(db_subdir, id, 'attributes.json')).nil?
       end
 
       def find_all(conditions = {})
+        branch = conditions.delete(:branch) || GitModel.default_branch
         # TODO Refactor this spaghetti
         GitModel.logger.debug "Finding all #{name.pluralize} with conditions: #{conditions.inspect}"
-        return [] unless GitModel.current_tree
+        return [] unless GitModel.current_tree(branch)
 
         order = conditions.delete(:order) || :asc
         order_by = conditions.delete(:order_by) || :id
@@ -205,7 +206,7 @@ module GitModel
 
         matching_ids = []
         if conditions.empty?  # load all objects
-          trees = (GitModel.current_tree / db_subdir).trees
+          trees = (GitModel.current_tree(branch) / db_subdir).trees
           trees.each do |t|
             matching_ids << t.name if t.blobs.any?
           end
@@ -215,13 +216,13 @@ module GitModel
             matching_ids_for_condition[k] = []
             if k == :id # id isn't indexed
               if v.is_a?(Proc)
-                trees = (GitModel.current_tree / db_subdir).trees
+                trees = (GitModel.current_tree(branch) / db_subdir).trees
                 trees.each do |t|
                   matching_ids_for_condition[k] << t.name if t.blobs.any? && v.call(t.name)
                 end
               else
                 # an unlikely use case but supporting it for completeness
-                matching_ids_for_condition[k] << v if (GitModel.current_tree / db_subdir / v)
+                matching_ids_for_condition[k] << v if (GitModel.current_tree(branch) / db_subdir / v)
               end
             else
               raise GitModel::IndexRequired unless index.generated?
@@ -302,7 +303,8 @@ module GitModel
         path = File.join(db_subdir, id)
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
-          delete_tree(path, t.index, options)
+          branch = t.branch || options[:branch] || GitModel.default_branch
+          delete_tree(path, t.index, branch, options)
         end
       end
 
@@ -310,19 +312,20 @@ module GitModel
         GitModel.logger.debug "Deleting all #{name.pluralize}"
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
-          delete_tree(db_subdir, t.index, options)
+          branch = t.branch || options[:branch] || GitModel.default_branch
+          delete_tree(db_subdir, t.index, branch, options)
         end
       end
 
-      def index!
-        index.generate!
-        index.save
+      def index!(branch)
+        index.generate!(branch)
+        index.save(:branch => branch)
       end
 
 
       private
 
-      def delete_tree(path, index, options = {})
+      def delete_tree(path, index, branch, options = {})
         # This leaves a bunch of empty sub-trees, there must be a way to just
         # replace the tree to be deleted with an empty tree that doesn't even
         # reference the sub-trees.

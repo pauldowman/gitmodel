@@ -69,13 +69,13 @@ module GitModel
     GitModel.repo.commits("#{branch}^..#{branch}").first || GitModel.repo.commits(branch).first
   end
 
-  def self.current_tree(branch = nil)
+  def self.current_tree(branch)
     c = last_commit(branch)
     c ? c.tree : nil
   end
 
-  def self.index!
-    dirs = (GitModel.current_tree).trees
+  def self.index!(branch)
+    dirs = (GitModel.current_tree(branch)).trees
     dirs.each do |dir|
       dir.name.classify.constantize.index!
     end
