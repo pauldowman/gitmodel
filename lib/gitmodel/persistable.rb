@@ -183,94 +183,107 @@ module GitModel
 
       def find(id, branch = GitModel.default_branch)
         GitModel.logger.debug "Finding #{name} with id: #{id}"
-        o = new
-        dir = File.join(db_subdir, id)
-        o.send :load, dir, branch
-        return o
+        result = GitModel.cache(branch, "#{db_subdir}-find-#{id}") do
+          o = new
+          dir = File.join(db_subdir, id)
+          o.send :load, dir, branch
+          o
+        end
+        return result
       end
 
       def exists?(id, branch = GitModel.default_branch)
         GitModel.logger.debug "Checking existence of #{name} with id: #{id}"
-        GitModel.repo.commits.any? && !(GitModel.current_tree(branch) / File.join(db_subdir, id, 'attributes.json')).nil?
+        result = GitModel.cache(branch, "#{db_subdir}-exists-#{id}") do
+          GitModel.repo.commits.any? && !(GitModel.current_tree(branch) / File.join(db_subdir, id, 'attributes.json')).nil?
+        end
+        return result
       end
 
       def find_all(conditions = {})
         branch = conditions.delete(:branch) || GitModel.default_branch
         # TODO Refactor this spaghetti
         GitModel.logger.debug "Finding all #{name.pluralize} with conditions: #{conditions.inspect}"
-        return [] unless GitModel.current_tree(branch)
+        cache_key = "#{db_subdir}-find_all-#{format_conditions_hash_for_cache_key(conditions)}"
+        cached_results = GitModel.cache(branch, cache_key) do
+          current_tree = GitModel.current_tree(branch)
+          unless current_tree
+            []
+          else
+            order = conditions.delete(:order) || :asc
+            order_by = conditions.delete(:order_by) || :id
+            limit = conditions.delete(:limit)
 
-        order = conditions.delete(:order) || :asc
-        order_by = conditions.delete(:order_by) || :id
-        limit = conditions.delete(:limit)
-
-        matching_ids = []
-        if conditions.empty?  # load all objects
-          trees = (GitModel.current_tree(branch) / db_subdir).trees
-          trees.each do |t|
-            matching_ids << t.name if t.blobs.any?
-          end
-        else # only load objects that match conditions
-          matching_ids_for_condition = {}
-          conditions.each do |k,v|
-            matching_ids_for_condition[k] = []
-            if k == :id # id isn't indexed
-              if v.is_a?(Proc)
-                trees = (GitModel.current_tree(branch) / db_subdir).trees
-                trees.each do |t|
-                  matching_ids_for_condition[k] << t.name if t.blobs.any? && v.call(t.name)
+            matching_ids = []
+            if conditions.empty?  # load all objects
+              trees = (current_tree / db_subdir).trees
+              trees.each do |t|
+                matching_ids << t.name if t.blobs.any?
+              end
+            else # only load objects that match conditions
+              matching_ids_for_condition = {}
+              conditions.each do |k,v|
+                matching_ids_for_condition[k] = []
+                if k == :id # id isn't indexed
+                  if v.is_a?(Proc)
+                    trees = (current_tree / db_subdir).trees
+                    trees.each do |t|
+                      matching_ids_for_condition[k] << t.name if t.blobs.any? && v.call(t.name)
+                    end
+                  else
+                    # an unlikely use case but supporting it for completeness
+                    matching_ids_for_condition[k] << v if (current_tree / db_subdir / v)
+                  end
+                else
+                  raise GitModel::IndexRequired unless index.generated?
+                  attr_index = index.attr_index(k)
+                  if v.is_a?(Proc)
+                    attr_index.each do |value, ids|
+                      matching_ids_for_condition[k] += ids.to_a if v.call(value)
+                    end
+                  else
+                    matching_ids_for_condition[k] += attr_index[v].to_a
+                  end
                 end
+              end
+              matching_ids += matching_ids_for_condition.values.inject{|memo, obj| memo & obj}
+            end
+
+            results = nil
+            if order_by != :id
+              GitModel.logger.warn "Ordering by an attribute other than id requires loading all matching objects before applying limit, this will be slow" if limit
+              results = matching_ids.map{|k| find(k)}
+
+              if order == :asc
+                results = results.sort{|a,b| a.send(order_by) <=> b.send(order_by)}
+              elsif order == :desc
+                results = results.sort{|b,a| a.send(order_by) <=> b.send(order_by)}
               else
-                # an unlikely use case but supporting it for completeness
-                matching_ids_for_condition[k] << v if (GitModel.current_tree(branch) / db_subdir / v)
+                raise GitModel::InvalidParams("invalid order: '#{order}'")
+              end
+
+              if limit
+                results = results[0, limit]
               end
             else
-              raise GitModel::IndexRequired unless index.generated?
-              attr_index = index.attr_index(k)
-              if v.is_a?(Proc)
-                attr_index.each do |value, ids|
-                  matching_ids_for_condition[k] += ids.to_a if v.call(value)
-                end
+              if order == :asc
+                matching_ids = matching_ids.sort{|a,b| a <=> b}
+              elsif order == :desc
+                matching_ids = matching_ids.sort{|b,a| a <=> b}
               else
-                matching_ids_for_condition[k] += attr_index[v].to_a
+                raise GitModel::InvalidParams("invalid order: '#{order}'")
               end
+              if limit
+
+                matching_ids = matching_ids[0, limit]
+              end
+              results = matching_ids.map{|k| find(k)}
             end
-          end
-          matching_ids += matching_ids_for_condition.values.inject{|memo, obj| memo & obj}
-        end
 
-        results = nil
-        if order_by != :id
-          GitModel.logger.warn "Ordering by an attribute other than id requires loading all matching objects before applying limit, this will be slow" if limit
-          results = matching_ids.map{|k| find(k)}
-
-          if order == :asc
-            results = results.sort{|a,b| a.send(order_by) <=> b.send(order_by)}
-          elsif order == :desc
-            results = results.sort{|b,a| a.send(order_by) <=> b.send(order_by)}
-          else
-            raise GitModel::InvalidParams("invalid order: '#{order}'")
+            results
           end
-
-          if limit
-            results = results[0, limit]
-          end
-        else
-          if order == :asc
-            matching_ids = matching_ids.sort{|a,b| a <=> b}
-          elsif order == :desc
-            matching_ids = matching_ids.sort{|b,a| a <=> b}
-          else
-            raise GitModel::InvalidParams("invalid order: '#{order}'")
-          end
-          if limit
-
-            matching_ids = matching_ids[0, limit]
-          end
-          results = matching_ids.map{|k| find(k)}
-        end
-
-        return results
+        end # cached block
+        return cached_results
       end
 
       def all_values_for_attr(attr)
@@ -348,6 +361,17 @@ module GitModel
           build_tree_hash(hash[t.name], t)
         end
         return hash
+      end
+
+      def format_conditions_hash_for_cache_key(hash)
+        hash.inject('') do |s,kv|
+          key = kv[0]
+          val = kv[1]
+          if val.is_a?(Proc)
+            val = "proc-#{val.hash}"
+          end
+          s += "#{key}:#{val};"
+        end
       end
 
     end # module ClassMethods

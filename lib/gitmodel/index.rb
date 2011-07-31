@@ -8,7 +8,7 @@ module GitModel
       GitModel.logger.debug "Generating indexes for #{@model_class}"
       # TODO it sucks to load every instance here, optimize later
       @indexes = {}
-      @model_class.find_all.each do |o|
+      @model_class.find_all(:branch => branch).each do |o|
         o.attributes.each do |attr, value|
           @indexes[attr] ||= {}
           @indexes[attr][value] ||= SortedSet.new
@@ -19,11 +19,13 @@ module GitModel
 
     def attr_index(attr)
       self.load unless @indexes
-      return nil unless @indexes # this is just so that we can stub self.load in tests
-
-      ret = @indexes[attr.to_s] 
-      raise GitModel::AttributeNotIndexed.new(attr.to_s) unless ret
-      return ret
+      unless @indexes # this is just so that we can stub self.load in tests
+        nil
+      else
+        ret = @indexes[attr.to_s] 
+        raise GitModel::AttributeNotIndexed.new(attr.to_s) unless ret
+        ret
+      end
     end
 
     def filename
@@ -54,25 +56,27 @@ module GitModel
     end
 
     def load(branch = GitModel.default_branch)
-      unless generated?(branch)
-        GitModel.logger.debug "No index generated for #{@model_class}, on branch #{branch}, not loading."
-        return
-      end
-
-      GitModel.logger.debug "Loading indexes for #{@model_class}..."
-      @indexes = {}
-      blob = GitModel.current_tree(branch) / filename
-      
-      data = Yajl::Parser.parse(blob.data)
-      data.each do |attr_and_values|
-        attr = attr_and_values[0]
-        values = {}
-        attr_and_values[1].each do |value_and_ids|
-          value = value_and_ids[0]
-          ids = SortedSet.new(value_and_ids[1])
-          values[value] = ids
+      @indexes = GitModel.cache(branch, "#{@model_class.db_subdir}-index-load") do
+        unless generated?(branch)
+          GitModel.logger.debug "No index generated for #{@model_class}, on branch #{branch}, not loading."
+        else
+          GitModel.logger.debug "Loading indexes for #{@model_class}..."
+          indexes = {}
+          blob = GitModel.current_tree(branch) / filename
+          
+          data = Yajl::Parser.parse(blob.data)
+          data.each do |attr_and_values|
+            attr = attr_and_values[0]
+            values = {}
+            attr_and_values[1].each do |value_and_ids|
+              value = value_and_ids[0]
+              ids = SortedSet.new(value_and_ids[1])
+              values[value] = ids
+            end
+            indexes[attr] = values
+          end
         end
-        @indexes[attr] = values
+        indexes
       end
     end
 

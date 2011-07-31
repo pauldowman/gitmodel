@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'activesupport', '>= 3.0.1'
   s.add_dependency 'grit', '>= 2.3.0'
   s.add_dependency 'lockfile', '>= 1.4.3'
+  s.add_dependency 'memcache-client', '>= 1.8.5'
   s.add_dependency 'yajl-ruby', '>= 0.8.2'
 
   s.add_development_dependency 'ZenTest', '>= 4.4.0'

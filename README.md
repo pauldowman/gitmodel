@@ -151,6 +151,25 @@ structure that looks like this:
             * _attributes.json_
 
 
+Performance
+-----------
+
+GitModel supports memcached for query results. This is off by default, but can be configured like this:
+
+    GitModel.memcache_servers(['server_1', 'server_2', ...])
+    GitModel.memcache_namespace('optional_namespace')
+
+The namespace is optional, and usually not necessary because GitModel will prepend the last segment of GitModel.db_root anyway.
+
+A Git SHA is also prepended to every key, so that outdated versions will not be retrieved from the cache. This is the SHA of the latest commit so unfortunately this is only useful when there are not frequent commits because every commit invalidates the cache. (This is obviously not ideal and I'm sure it can be improved upon.)
+
+There is still a lot of work to be done to make it faster. First, some analysis is required, but some guesses about things that would help are:
+
+    * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
+    * Remove the transaction lock (see transaction.rb line 19)
+    * Ability to iterate over result set without eager loading of all instances
+
+
 Contributing
 ------------
 
@@ -179,10 +198,6 @@ To do
     * Generators
     * Rake tasks
 * Performance
-    * Haven't optimized for performance yet. 
-    * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
-    * Remove the transaction lock (see transaction.rb line 19)
-    * Ability to iterate over result set without eager loading of all instances
 * Persistable.find/find_all/etc could be based on staged files so that queries reflect uncommitted changes
 * Better query support
     * Associations

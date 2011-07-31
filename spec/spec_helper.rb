@@ -18,3 +18,4 @@ class TestEntity2
 end
 
 #GitModel.logger.level = ::Logger::DEBUG
+GitModel.memcache_servers = ['localhost']
