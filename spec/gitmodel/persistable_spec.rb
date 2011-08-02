@@ -1,32 +1,42 @@
 require 'spec_helper'
+require 'active_model/lint'
 
-class LintTest < ActiveModel::TestCase
-  include ActiveModel::Lint::Tests
- 
-  def setup
-    @model = TestEntity.new
-  end
-end
-  
 describe GitModel::Persistable do
 
-  it 'passes ActiveModel lint tests' do
+  context 'lint' do
+    let(:model) { TestEntity.new }
 
-    o = LintTest.new("ActiveModel lint test")
-    o.setup
+    include ActiveModel::Lint::Tests
 
-    # TODO get this list of methods dynamically
-    o.test_to_key
-    o.test_to_param
-    o.test_valid?
-    o.test_persisted?
-    o.test_model_naming
-    o.test_errors_aref
-    o.test_errors_full_messages
+    it 'must implement the #to_key interface' do
+      test_to_key
+    end
+
+    it 'must implement the #to_param interface' do
+      test_to_param
+    end
+
+    it 'must implement the #valid? interface' do
+      test_valid?
+    end
+
+    it 'must implement the #persisted? interface' do
+      test_persisted?
+    end
+
+    it 'must implement the #model_naming interface' do
+      test_model_naming
+    end
+
+    it 'must implement the #errors interface' do
+      test_errors_aref
+      test_errors_full_messages
+    end
+
   end
 
   describe '#save' do
-    
+
     it 'raises an exception if the id is not set' do
       o = TestEntity.new
       lambda {o.save}.should raise_error(GitModel::NullId)
