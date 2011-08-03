@@ -79,7 +79,11 @@ module GitModel
     def new_record?
       @new_record || false
     end
-  
+
+    def persisted?
+      !new_record?
+    end
+
     # Valid options are:
     #   :transaction
     #   OR:
