@@ -200,6 +200,12 @@ module GitModel
         return result
       end
 
+      # TODO document conditions
+      # :branch
+      # :cache_key
+      # :order_by
+      # :order
+      # any model attribute
       def find_all(conditions = {})
         branch = conditions.delete(:branch) || GitModel.default_branch
         # TODO Refactor this spaghetti
@@ -364,14 +370,22 @@ module GitModel
       end
 
       def format_conditions_hash_for_cache_key(hash)
-        hash.inject('') do |s,kv|
-          key = kv[0]
-          val = kv[1]
-          if val.is_a?(Proc)
-            val = "proc-#{val.hash}"
+        # allow setting an explicit cache key, mostly because Proc.hash is
+        # usually different even with the same code and same parameters
+        cache_key = hash.delete(:cache_key)
+
+        unless cache_key
+          cache_key = ""
+          hash.inject('') do |s,kv|
+            key = kv[0]
+            val = kv[1]
+            if val.is_a?(Proc)
+              val = "proc-#{val.hash}"
+            end
+            cache_key += "#{key}:#{val};"
           end
-          s += "#{key}:#{val};"
         end
+        cache_key
       end
 
     end # module ClassMethods
