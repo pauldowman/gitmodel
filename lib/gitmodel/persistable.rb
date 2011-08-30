@@ -54,6 +54,23 @@ module GitModel
       @id = string
     end
 
+    # Get the location of the record relative to the repository's root.
+    #
+    # It is determined by appending the name of the directory containing
+    # the record with the record's +id+.
+    def path
+      @path ||= File.join(self.class.db_subdir, self.id)
+    end
+
+    # Get the branch that the record was last loaded from or was last
+    # saved on.
+    #
+    # The branch specified in the +GitModel+ config is used by default.
+    # Typically, the branch is 'master'.
+    def branch
+      @branch ||= GitModel.default_branch
+    end
+
     def attributes
       @attributes
     end
