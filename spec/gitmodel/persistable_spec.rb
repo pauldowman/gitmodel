@@ -118,6 +118,34 @@ describe GitModel::Persistable do
     end
   end
 
+  describe'#reload' do
+
+    it 'reloads persisted attributes' do
+      o = TestEntity.new(:id => 'foo')
+      o.attributes['A'] = 'A'
+      o.save
+      o.attributes['B'] = 'B'
+
+      o.attributes['A'].should == 'A'
+      o.attributes['B'].should == 'B'
+      o.reload
+      o.attributes['A'].should == 'A'
+      o.attributes['B'].should == nil
+    end
+
+    it 'returns the reloaded instance' do
+      o = TestEntity.create(:id => 'foo')
+      p = o.reload
+      o.should == p
+    end
+
+    it 'raises an exception if the document is not found' do
+      lambda { TestEntity.new.reload }.should raise_error
+      lambda { TestEntity.new(:id => "foo").reload }.should raise_error
+    end
+
+  end
+
   describe '.create' do
     
     it 'creates a new instance with the given parameters and calls #save on it' do

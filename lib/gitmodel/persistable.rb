@@ -132,6 +132,12 @@ module GitModel
           end
         end
 
+        if result
+          @path = dir
+          @branch = transaction.branch
+          @new_record = false
+        end
+
         result
       end
     end
@@ -139,6 +145,15 @@ module GitModel
     # Same as #save but raises an exception on error
     def save!(options = {})
       save(options) || raise(GitModel::RecordNotSaved)
+    end
+
+    # Reloads a record and returns the model instance.
+    #
+    # The record is reloaded from the branch that the record
+    # was last loaded from or last saved to.
+    def reload
+      load(path, branch)
+      self
     end
 
     def delete(options = {})
@@ -158,6 +173,9 @@ module GitModel
         # remove dangerous ".."
         # todo find a better way to ensure path is safe
         dir.gsub!(/\.\./, '')
+
+        @path = dir
+        @branch = branch
 
         raise GitModel::RecordNotFound if GitModel.current_tree(branch).nil?
 
