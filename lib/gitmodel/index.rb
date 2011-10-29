@@ -22,7 +22,7 @@ module GitModel
       unless @indexes # this is just so that we can stub self.load in tests
         nil
       else
-        ret = @indexes[attr.to_s] 
+        ret = @indexes[attr.to_s]
         raise GitModel::AttributeNotIndexed.new(attr.to_s) unless ret
         ret
       end
@@ -38,7 +38,7 @@ module GitModel
 
     def save(options = {})
       GitModel.logger.debug "Saving indexes for #{@model_class}..."
-      transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+      transaction = options.delete(:transaction) || GitModel::Transaction.new(options)
       branch = transaction.branch || options.delete(:branch) || GitModel.default_branch
       result = transaction.execute do |t|
         # convert to array because JSON hash keys must be strings
@@ -63,7 +63,7 @@ module GitModel
           GitModel.logger.debug "Loading indexes for #{@model_class}..."
           indexes = {}
           blob = GitModel.current_tree(branch) / filename
-          
+
           data = Yajl::Parser.parse(blob.data)
           data.each do |attr_and_values|
             attr = attr_and_values[0]

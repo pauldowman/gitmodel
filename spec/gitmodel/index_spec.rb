@@ -75,7 +75,7 @@ describe GitModel::Index do
 END
     repo = Grit::Repo.new(GitModel.db_root)
     # We should be able to use just repo.commits.first here but
-    # this is a workaround for this bug: 
+    # this is a workaround for this bug:
     # http://github.com/mojombo/grit/issues/issue/38
     (repo.commits("master^..master").first.tree / @i.filename).data.should == json
   end

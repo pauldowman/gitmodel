@@ -13,7 +13,7 @@ describe GitModel do
       index.read_tree head.to_s
       index.add "foo", "foo"
       sha = index.commit nil, nil, nil, nil, 'master'
-            
+
       GitModel.last_commit(GitModel.default_branch).to_s.should == sha
     end
   end

@@ -45,7 +45,7 @@ describe GitModel::Persistable do
     it 'stores an instance in a Git repository in a subdir of db_root named with the id' do
       id = 'foo'
       TestEntity.create!(:id => id)
-      
+
       repo = Grit::Repo.new(GitModel.db_root)
       (repo.commits.first.tree / File.join(TestEntity.db_subdir, id, 'attributes.json')).data.should_not be_nil
     end
@@ -96,11 +96,11 @@ describe GitModel::Persistable do
   end
 
   describe '#save!' do
-    
+
     it "calls save and returns the non-false and non-nil result"
 
     it "calls save and raises an exception if the result is nil"
-    
+
     it "calls save and raises an exception if the result is false"
 
   end
@@ -119,7 +119,7 @@ describe GitModel::Persistable do
   end
 
   describe '.create' do
-    
+
     it 'creates a new instance with the given parameters and calls #save on it' do
       id = 'foo'
       attrs = {:one => 1, :two => 2}
@@ -129,7 +129,7 @@ describe GitModel::Persistable do
       TestEntity.should_receive(:new).with(:id => id, :attributes => attrs, :blobs => blobs).and_return(new_mock)
       new_mock.should_receive(:save)
 
-      TestEntity.create(:id => id, :attributes => attrs, :blobs => blobs) 
+      TestEntity.create(:id => id, :attributes => attrs, :blobs => blobs)
     end
 
     it 'returns an instance of the record created' do
@@ -153,7 +153,7 @@ describe GitModel::Persistable do
         new_mock1.should_receive(:save)
         new_mock2.should_receive(:save)
 
-        TestEntity.create(args) 
+        TestEntity.create(args)
       end
 
     end
@@ -171,7 +171,7 @@ describe GitModel::Persistable do
       TestEntity.should_receive(:new).with(:id => id, :attributes => attrs, :blobs => blobs).and_return(new_mock)
       new_mock.should_receive(:save!)
 
-      TestEntity.create!(:id => id, :attributes => attrs, :blobs => blobs) 
+      TestEntity.create!(:id => id, :attributes => attrs, :blobs => blobs)
     end
 
     it 'returns an instance of the record created' do
@@ -194,7 +194,7 @@ describe GitModel::Persistable do
         new_mock1.should_receive(:save!)
         new_mock2.should_receive(:save!)
 
-        TestEntity.create!(args) 
+        TestEntity.create!(args)
       end
     end
 
@@ -270,7 +270,7 @@ describe GitModel::Persistable do
     #  o.attributes.should be_empty
     #  o.blobs.should be_empty
     #end
-    
+
     describe 'with no commits in the repo' do
 
       it 'raises GitModel::RecordNotFound if a record with the given id doesn\'t exist' do
@@ -278,7 +278,7 @@ describe GitModel::Persistable do
       end
 
     end
-    
+
     it 'raises GitModel::RecordNotFound if a record with the given id doesn\'t exist' do
       TestEntity.create!(:id => 'something')
       lambda{TestEntity.find('missing')}.should raise_error(GitModel::RecordNotFound)
@@ -561,7 +561,7 @@ describe GitModel::Persistable do
 
     it 'creates convenient accessor methods for accessing the attributes hash' do
       o = TestEntity.new
-      class << o 
+      class << o
         attribute :colour
       end
 
@@ -576,10 +576,10 @@ describe GitModel::Persistable do
 
       # Change the singleton class for object o, this doesn't change the
       # TestEntity class
-      class << o 
+      class << o
         attribute :size, :default => "medium"
-        attribute :shape, :default => 2 
-        attribute :style, :default => nil 
+        attribute :shape, :default => 2
+        attribute :style, :default => nil
         attribute :teeth, :default => {"molars" => 4, "canines" => 2}
       end
 
@@ -598,7 +598,7 @@ describe GitModel::Persistable do
 
     it 'creates convenient accessor methods for accessing the blobs hash' do
       o = TestEntity.new
-      class << o 
+      class << o
         blob :avatar
       end
 

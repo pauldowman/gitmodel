@@ -11,7 +11,7 @@ module GitModel
     end
 
     def execute(&block)
-      if index 
+      if index
         # We're already in a transaction
         yield self
       else
@@ -31,7 +31,7 @@ module GitModel
 
           self.index = Grit::Index.new(GitModel.repo)
           index.read_tree(parent.to_s)
-          
+
           yield self
 
           committer = Grit::Actor.new(GitModel.git_user_name, GitModel.git_user_email)
