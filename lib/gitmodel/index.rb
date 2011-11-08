@@ -22,9 +22,7 @@ module GitModel
       unless @indexes # this is just so that we can stub self.load in tests
         nil
       else
-        ret = @indexes[attr.to_s] 
-        raise GitModel::AttributeNotIndexed.new(attr.to_s) unless ret
-        ret
+        @indexes[attr.to_s] || {}
       end
     end
 
