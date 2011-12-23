@@ -68,7 +68,7 @@ module GitModel
         nil
       else
         # We should be able to use just repo.commits(branch).first here but
-        # this is a workaround for this bug: 
+        # this is a workaround for this bug:
         # http://github.com/mojombo/grit/issues/issue/38
         GitModel.repo.commits("#{branch}^..#{branch}").first || GitModel.repo.commits(branch).first
       end

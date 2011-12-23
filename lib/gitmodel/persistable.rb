@@ -3,7 +3,7 @@ module GitModel
 
     def self.included(base)
       base.class_eval do
-         
+
         extend ActiveModel::Callbacks
         extend ActiveModel::Naming
         include ActiveModel::Validations
@@ -20,11 +20,11 @@ module GitModel
 
       base.extend(ClassMethods)
     end
-    
-  
+
+
     def initialize(args = {})
       _run_initialize_callbacks do
-        @new_record = true 
+        @new_record = true
         self.attributes = {}
         self.blobs = {}
         args.each do |k,v|
@@ -44,11 +44,11 @@ module GitModel
     def to_param
       id && id.to_s
     end
-      
+
     def id
       @id
     end
-  
+
     def id=(string)
       # TODO ensure is valid as a filename
       @id = string
@@ -57,7 +57,7 @@ module GitModel
     def attributes
       @attributes
     end
-  
+
     def attributes=(new_attributes, guard_protected_attributes = true)
       @attributes = HashWithIndifferentAccess.new
       if new_attributes
@@ -68,7 +68,7 @@ module GitModel
     def blobs
       @blobs
     end
-  
+
     def blobs=(new_blobs)
       @blobs = HashWithIndifferentAccess.new
       if new_blobs
@@ -91,7 +91,7 @@ module GitModel
     #   :commit_message
     # Returns false if validations failed, otherwise returns the SHA of the commit
     def save(options = {})
-      _run_save_callbacks do 
+      _run_save_callbacks do
         raise GitModel::NullId unless self.id
 
         if new_record?
@@ -104,7 +104,7 @@ module GitModel
 
         dir = File.join(self.class.db_subdir, self.id)
 
-        transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+        transaction = options.delete(:transaction) || GitModel::Transaction.new(options)
         result = transaction.execute do |t|
           # Write the attributes to the attributes file
           t.index.add(File.join(dir, 'attributes.json'), Yajl::Encoder.encode(attributes, nil, :pretty => true))
@@ -146,7 +146,7 @@ module GitModel
 
         self.id = File.basename(dir)
         @new_record = false
-        
+
         GitModel.logger.debug "Loading #{self.class.name} with id: #{id}"
 
         # load the attributes
@@ -324,7 +324,7 @@ module GitModel
       def delete(id, options = {})
         GitModel.logger.debug "Deleting #{name} with id: #{id}"
         path = File.join(db_subdir, id)
-        transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+        transaction = options.delete(:transaction) || GitModel::Transaction.new(options)
         result = transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(path, t.index, branch, options)
@@ -333,7 +333,7 @@ module GitModel
 
       def delete_all(options = {})
         GitModel.logger.debug "Deleting all #{name.pluralize}"
-        transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
+        transaction = options.delete(:transaction) || GitModel::Transaction.new(options)
         result = transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(db_subdir, t.index, branch, options)
@@ -393,7 +393,7 @@ module GitModel
       end
 
     end # module ClassMethods
-    
+
   end # module Persistable
 end # module GitModel
 
