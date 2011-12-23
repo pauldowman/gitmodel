@@ -171,9 +171,9 @@ A Git SHA is also prepended to every key, so that outdated versions will not be 
 
 There is still a lot of work to be done to make it faster. First, some analysis is required, but some guesses about things that would help are:
 
-    * Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
-    * Remove the transaction lock (see transaction.rb line 19)
-    * Ability to iterate over result set without eager loading of all instances
+* Use [Rugged](https://github.com/libgit2/rugged) instead of Grit
+* Remove the transaction lock (see transaction.rb line 19)
+* Ability to iterate over result set without eager loading of all instances
 
 
 Contributing
