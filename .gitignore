@@ -1,8 +1,9 @@
 *.gem
+*.swp
 .DS_Store
 .bundle
 .gitmodel-data
+.rvmrc
 coverage
 pkg
 rdoc
-*.swp
