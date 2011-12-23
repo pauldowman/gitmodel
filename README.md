@@ -188,6 +188,7 @@ The main author is [Paul Dowman](http://pauldowman.com/about) ([@pauldowman](htt
 Thanks to everyone who has contributed so far:
 
 * [Alex Bartlow](https://github.com/alexbartlow)
+* [Daniel Russo](https://github.com/drusso)
 
 
 To do
