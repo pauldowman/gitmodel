@@ -160,8 +160,10 @@ Performance
 
 GitModel supports memcached for query results. This is off by default, but can be configured like this:
 
-    GitModel.memcache_servers(['server_1', 'server_2', ...])
-    GitModel.memcache_namespace('optional_namespace')
+```ruby
+GitModel.memcache_servers(['server_1', 'server_2', ...])
+GitModel.memcache_namespace('optional_namespace')
+```
 
 The namespace is optional, and usually not necessary because GitModel will prepend the last segment of GitModel.db_root anyway.
 
