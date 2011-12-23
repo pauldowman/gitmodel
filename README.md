@@ -56,7 +56,9 @@ See the "To do" section below for details, but the main thing that needs
 finishing is support for querying. Right now you can find an instance by it's
 id, but there is incomplete support (90% complete) for querying, e.g.:
 
-    Post.find(:category => 'ruby', :date => lambda{|d| d > 1.month.ago} :order_by => :date, :order => :asc, :limit => 5)
+```ruby
+Post.find(:category => 'ruby', :date => lambda{|d| d > 1.month.ago} :order_by => :date, :order => :asc, :limit => 5)
+```
 
 This includes support for indexing all attributes so that queries don't need to
 load every object.
@@ -73,44 +75,46 @@ It's available as a [RubyGem](https://rubygems.org/gems/gitmodel):
 Usage
 -----
 
-    GitModel.db_root = '/tmp/gitmodel-data'
-    GitModel.create_db!
+```ruby
+GitModel.db_root = '/tmp/gitmodel-data'
+GitModel.create_db!
 
-    class Post
-      include GitModel::Persistable
+class Post
+  include GitModel::Persistable
 
-      attribute :title
-      attribute :body
-      attribute :categories, :default => []
-      attribute :allow_comments, :default => true
+  attribute :title
+  attribute :body
+  attribute :categories, :default => []
+  attribute :allow_comments, :default => true
 
-      blob :image
-    end
+  blob :image
+end
 
-    p1 = Post.new(:id => 'lessons-learned', :title => 'Lessons learned', :body => '...')
-    p1.image = some_binary_data
-    p1.save!
+p1 = Post.new(:id => 'lessons-learned', :title => 'Lessons learned', :body => '...')
+p1.image = some_binary_data
+p1.save!
 
-    p = Post.find('lessons-learned')
+p = Post.find('lessons-learned')
 
-    p2 = Post.new(:id => 'hotdog-eating-contest', :title => 'I won!')
-    p2.body = 'This weekend I won a hotdog eating contest!'
-    p2.image = some_binary_data
-    p2.blobs['hotdogs.jpg'] = some_binary_data
-    p2.blobs['the-aftermath.jpg'] = some_binary_data
-    p2.save!
+p2 = Post.new(:id => 'hotdog-eating-contest', :title => 'I won!')
+p2.body = 'This weekend I won a hotdog eating contest!'
+p2.image = some_binary_data
+p2.blobs['hotdogs.jpg'] = some_binary_data
+p2.blobs['the-aftermath.jpg'] = some_binary_data
+p2.save!
 
-    p3 = Post.create!(:id => 'running-with-scissors', :title => 'Running with scissors', :body => '...')
+p3 = Post.create!(:id => 'running-with-scissors', :title => 'Running with scissors', :body => '...')
 
-    p4 = Post.find('running-with-scissors')
+p4 = Post.find('running-with-scissors')
 
-    class Comment
-      include GitModel::Persistable
-      attribute :text
-    end
+class Comment
+  include GitModel::Persistable
+  attribute :text
+end
 
-    c1 = Comment.create!(:id => '2010-01-03-328', :text => '...')
-    c2 = Comment.create!(:id => '2010-05-29-742', :text => '...')
+c1 = Comment.create!(:id => '2010-01-03-328', :text => '...')
+c2 = Comment.create!(:id => '2010-05-29-742', :text => '...')
+```
 
 
 An example of a project that uses GitModel is [Balisong](https://github.com/pauldowman/balisong), a blogging app for coders (but it doesn't save objects to the data store. It's read-only so far, assuming that posts will be edited with a text editor).
