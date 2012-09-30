@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gitmodel (0.0.7)
+    gitmodel (0.0.8)
       activemodel (~> 3.0.1)
       activesupport (~> 3.0.1)
       dalli
