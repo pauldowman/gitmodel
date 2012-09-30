@@ -5,9 +5,9 @@ require 'bundler/setup'
 
 require 'active_model'
 require 'active_support/all' # TODO we don't really want all here, clean this up
+require 'dalli'
 require 'grit'
 require 'lockfile'
-require 'memcache'
 require 'pp'
 require 'yajl'
 
@@ -99,7 +99,7 @@ module GitModel
     key = "#{key}-#{head_sha(branch)}"
     value = nil
     if memcache_servers
-      @@memcache ||= MemCache.new memcache_servers, :namespace => "#{File.basename(db_root)}-#{memcache_namespace}"
+      @@memcache ||= Dalli::Client.new memcache_servers, :namespace => "#{File.basename(db_root)}#{memcache_namespace.blank? ? '' : '-'}#{memcache_namespace}"
       value = @@memcache.get(key)
       if value.nil?
         logger.info("✗ memcache MISS for key #{key}")
