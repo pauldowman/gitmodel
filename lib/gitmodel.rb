@@ -16,9 +16,12 @@ require 'gitmodel/errors'
 require 'gitmodel/index'
 require 'gitmodel/persistable'
 require 'gitmodel/transaction'
+require 'gitmodel/serialization/yajl'
+require 'gitmodel/serialization/yaml'
 
 module GitModel
 
+  DEFAULT_SERIALIZER = GitModel::Serialization::Yajl
   # db_root must be an existing git repo. (It can be created with create_db!)
   # Bare repositories aren't supported yet, it must be a normal git repo with a
   # working directory and a '.git' subdirectory.
@@ -37,6 +40,9 @@ module GitModel
 
   mattr_accessor :memcache_servers
   mattr_accessor :memcache_namespace
+
+  mattr_accessor :serializer
+  self.serializer = DEFAULT_SERIALIZER
 
   def self.repo
     @@repo = Grit::Repo.new(GitModel.db_root)
@@ -122,4 +128,13 @@ module GitModel
     ref = File.join(repo.git.git_dir, "refs/heads/#{branch_name}")
     File.exist?(ref) ? File.read(ref).chomp : nil
   end
+  
+  def self.attributes_filename
+    serializer.attributes_filename
+  end
+  
+  def self.filename_extension
+    serializer.filename_extension
+  end
+  
 end

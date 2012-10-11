@@ -27,7 +27,7 @@ module GitModel
     end
 
     def filename
-      File.join(@model_class.db_subdir, '_indexes.json')
+      File.join(@model_class.db_subdir, "_indexes.#{GitModel.filename_extension}")
     end
 
     def generated?(branch = GitModel.default_branch)
@@ -48,7 +48,7 @@ module GitModel
           end
           data << [attr,values_and_ids]
         end
-        data = Yajl::Encoder.encode(data, nil, :pretty => true)
+        data = GitModel.serializer.encode(data)
         t.index.add(filename, data)
       end
     end

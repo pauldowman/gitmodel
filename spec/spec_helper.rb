@@ -8,6 +8,10 @@ Dir[File.join(File.dirname(__FILE__), "support/**/*.rb")].each {|f| require f}
 
 RSpec.configure do |c|
   c.mock_with :rspec
+  
+  c.before(:each) do
+    GitModel.serializer = GitModel::DEFAULT_SERIALIZER
+  end
 end
 
 class TestEntity
@@ -19,3 +23,10 @@ end
 
 #GitModel.logger.level = ::Logger::DEBUG
 GitModel.memcache_servers = ['localhost']
+
+module RawData
+  def last_saved_entity_attributes(id)
+    repo = Grit::Repo.new(GitModel.db_root)
+    (repo.commits.first.tree / File.join(TestEntity.db_subdir, id, 'attributes.json')).data
+  end
+end
