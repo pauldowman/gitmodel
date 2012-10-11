@@ -27,10 +27,22 @@ describe GitModel::Index do
     @i.attr_index(:x).should == {1 => SortedSet.new(["foo", "bar"]), 2 => SortedSet.new(["baz"])}
   end
 
-  it "knows it's filename" do
-    @i.filename.should == "test_entities/_indexes.json"
-  end
+  context "with serializer" do
+    context "Yajl" do
+      it "knows it's filename" do
+        GitModel.serializer = GitModel::Serialization::Yajl
+        @i.filename.should == "test_entities/_indexes.json"
+      end
+    end
 
+    context "Yaml" do
+      it "knows it's filename" do
+        GitModel.serializer = GitModel::Serialization::Yaml
+        @i.filename.should == "test_entities/_indexes.yaml"
+      end
+    end
+  end
+  
   it "can save itself to a JSON file" do
     @i.save
     json = <<-END.strip

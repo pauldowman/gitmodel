@@ -8,6 +8,10 @@ Dir[File.join(File.dirname(__FILE__), "support/**/*.rb")].each {|f| require f}
 
 RSpec.configure do |c|
   c.mock_with :rspec
+  
+  c.before(:each) do
+    GitModel.serializer = GitModel::DEFAULT_SERIALIZER
+  end
 end
 
 class TestEntity
