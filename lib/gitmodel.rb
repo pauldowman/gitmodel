@@ -16,6 +16,7 @@ require 'gitmodel/errors'
 require 'gitmodel/index'
 require 'gitmodel/persistable'
 require 'gitmodel/transaction'
+require 'gitmodel/serialization/yajl'
 
 module GitModel
 
@@ -37,6 +38,9 @@ module GitModel
 
   mattr_accessor :memcache_servers
   mattr_accessor :memcache_namespace
+
+  mattr_accessor :serializer
+  self.serializer = GitModel::Serialization::Yajl
 
   def self.repo
     @@repo = Grit::Repo.new(GitModel.db_root)
@@ -122,4 +126,9 @@ module GitModel
     ref = File.join(repo.git.git_dir, "refs/heads/#{branch_name}")
     File.exist?(ref) ? File.read(ref).chomp : nil
   end
+  
+  def self.attributes_filename
+    serializer.attributes_filename
+  end
+  
 end

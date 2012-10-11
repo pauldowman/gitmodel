@@ -44,5 +44,10 @@ describe GitModel do
     end
   end
 
+  describe ".serializer" do
+    it "should be Yajl by default" do
+      GitModel.serializer.should == GitModel::Serialization::Yajl
+    end
+  end
 end
 

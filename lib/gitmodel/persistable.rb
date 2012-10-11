@@ -124,7 +124,7 @@ module GitModel
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
         result = transaction.execute do |t|
           # Write the attributes to the attributes file
-          t.index.add(File.join(dir, 'attributes.json'), Yajl::Encoder.encode(attributes, nil, :pretty => true))
+          t.index.add(File.join(dir, 'attributes.json'), GitModel.serializer.encode(attributes))
 
           # Write the blob files
           blobs.each do |name, data|
