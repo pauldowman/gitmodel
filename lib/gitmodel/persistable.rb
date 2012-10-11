@@ -23,14 +23,13 @@ module GitModel
     
   
     def initialize(args = {})
-      _run_initialize_callbacks do
-        @new_record = true 
-        self.attributes = {}
-        self.blobs = {}
-        args.each do |k,v|
-          self.send("#{k}=".to_sym, v)
-        end
+      @new_record = true 
+      self.attributes = {}
+      self.blobs = {}
+      args.each do |k,v|
+        self.send("#{k}=".to_sym, v)
       end
+      run_callbacks :initialize
     end
 
     def to_model
@@ -333,7 +332,7 @@ module GitModel
 
       def all_values_for_attr(attr)
         attr_index = index.attr_index(attr.to_s)
-        values = attr_index ? attr_index.keys : []
+        attr_index ? attr_index.keys : []
       end
 
       def create(args)
@@ -360,7 +359,7 @@ module GitModel
         GitModel.logger.debug "Deleting #{name} with id: #{id}"
         path = File.join(db_subdir, id)
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
-        result = transaction.execute do |t|
+        transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(path, t.index, branch, options)
         end
@@ -369,7 +368,7 @@ module GitModel
       def delete_all(options = {})
         GitModel.logger.debug "Deleting all #{name.pluralize}"
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
-        result = transaction.execute do |t|
+        transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(db_subdir, t.index, branch, options)
         end
