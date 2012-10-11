@@ -23,14 +23,13 @@ module GitModel
     
   
     def initialize(args = {})
-      _run_initialize_callbacks do
-        @new_record = true 
-        self.attributes = {}
-        self.blobs = {}
-        args.each do |k,v|
-          self.send("#{k}=".to_sym, v)
-        end
+      @new_record = true 
+      self.attributes = {}
+      self.blobs = {}
+      args.each do |k,v|
+        self.send("#{k}=".to_sym, v)
       end
+      run_callbacks :initialize
     end
 
     def to_model
@@ -108,7 +107,7 @@ module GitModel
     #   :commit_message
     # Returns false if validations failed, otherwise returns the SHA of the commit
     def save(options = {})
-      _run_save_callbacks do 
+      run_callbacks(:save) do 
         raise GitModel::NullId unless self.id
 
         if new_record?
@@ -169,7 +168,7 @@ module GitModel
     private
 
     def load(dir, branch)
-      _run_find_callbacks do
+      run_callbacks(:find) do
         # remove dangerous ".."
         # todo find a better way to ensure path is safe
         dir.gsub!(/\.\./, '')
@@ -333,7 +332,7 @@ module GitModel
 
       def all_values_for_attr(attr)
         attr_index = index.attr_index(attr.to_s)
-        values = attr_index ? attr_index.keys : []
+        attr_index ? attr_index.keys : []
       end
 
       def create(args)
@@ -360,7 +359,7 @@ module GitModel
         GitModel.logger.debug "Deleting #{name} with id: #{id}"
         path = File.join(db_subdir, id)
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
-        result = transaction.execute do |t|
+        transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(path, t.index, branch, options)
         end
@@ -369,7 +368,7 @@ module GitModel
       def delete_all(options = {})
         GitModel.logger.debug "Deleting all #{name.pluralize}"
         transaction = options.delete(:transaction) || GitModel::Transaction.new(options) 
-        result = transaction.execute do |t|
+        transaction.execute do |t|
           branch = t.branch || options[:branch] || GitModel.default_branch
           delete_tree(db_subdir, t.index, branch, options)
         end
