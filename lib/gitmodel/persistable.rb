@@ -21,12 +21,14 @@ module GitModel
       base.extend(ClassMethods)
     end
     
+    attr_reader :attributes, :blobs
   
     def initialize(args = {})
-      _run_initialize_callbacks do
-        @new_record = true 
-        self.attributes = {}
-        self.blobs = {}
+      @new_record = true
+      @attributes = HashWithIndifferentAccess.new
+      @blobs      = HashWithIndifferentAccess.new
+
+      run_callbacks :initialize do
         args.each do |k,v|
           self.send("#{k}=".to_sym, v)
         end
@@ -70,20 +72,12 @@ module GitModel
     def branch
       @branch ||= GitModel.default_branch
     end
-
-    def attributes
-      @attributes
-    end
   
     def attributes=(new_attributes, guard_protected_attributes = true)
       @attributes = HashWithIndifferentAccess.new
       if new_attributes
         new_attributes.each {|k,v| @attributes[k] = v}
       end
-    end
-
-    def blobs
-      @blobs
     end
   
     def blobs=(new_blobs)
