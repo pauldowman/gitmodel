@@ -17,5 +17,7 @@ class TestEntity2
   include GitModel::Persistable
 end
 
-#GitModel.logger.level = ::Logger::DEBUG
-GitModel.memcache_servers = ['localhost']
+# GitModel.logger.level = ::Logger::DEBUG
+
+# Set this to an array of memcache servers, if using memcache.
+#   GitModel.memcache_servers = ['localhost']
