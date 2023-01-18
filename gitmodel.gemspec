@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   DESC
 
   s.add_dependency 'activemodel', '~> 3.0.1'
-  s.add_dependency 'activesupport', '~> 3.0.1'
+  s.add_dependency 'activesupport', '>= 3.0.1', '< 7.1.0'
   s.add_dependency 'dalli'
   s.add_dependency 'grit', '>= 2.3.0'
   s.add_dependency 'lockfile', '>= 1.4.3'
